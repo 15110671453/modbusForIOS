@@ -1,0 +1,324 @@
+modbus 协议移植
+交叉编译某个应用程序时，通常需要 ./configure 来生成对应的 Makefile
+./configure 最关键的三个选项是：
+
+--host=HOST
+指定软件运行的系统平台.如果没有指定,将会运行`config.guess'来检测.
+
+--build=BUILD
+指定软件包安装的系统平台.如果没有指定,默认值将是'--host'选项的值.
+
+--target=GARGET
+指定软件面向(target to)的系统平台.这主要在程序语言工具如编译器和汇编器上下文中起作用.如果没有指定,默认将使用'--host'选项的值. 
+
+一般而言，我们只要指定 --host 就可以了
+记住：--host 指定的是交叉编译工具链的前缀
+
+##################################################################################################################################
+linux 操作系统 cpu列表
+
+1. i386
+i386 适用于intel和AMD所有32位的cpu.以及via采用X86架构的32的cpu.
+intel平台包括8086,80286,80386,80486,奔腾系列(1.2.3.4)、赛扬系列,Pentium D系列.以及centrino P-M,core duo 等.
+
+2. i586
+就是586等级的计算机，包括pentum第一代MMX CPU，AMD的K5，K6系统CPU（socket7插脚）等CPU都是这个等级。
+
+3. i686
+i686—pentum 2 以后的Intel系统CPU及K7以后等级的CPU都属于这个686等级。
+
+4. amd64
+	amd64.又称“x86-64”或“x64”，是一种64位元的电脑处理器架构。它是建基于现有32位元的x86架构，由AMD公司所开发，应用AMD64指令集的自家产品有Athlon 64、Athlon 64 F	X、Athlon 64 X2、Turion 64、Opteron及最新的Sempron处理器
+5. x86
+一般意义上的32位处理器Intel；
+6. x86_64
+一般意义上的64处理器Intel
+
+##########
+
+移植到armv7处理器下
+
+macserver1:Framworks admindyn$ /Users/admindyn/Downloads/libmodbus-3.1.4/configure  --host=armv7  --enable-static --prefix=/Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for armv7-strip... no
+checking for strip... strip
+checking for a thread-safe mkdir -p... /Users/admindyn/Downloads/libmodbus-3.1.4/build-aux/install-sh -c -d
+checking for gawk... no
+checking for mawk... no
+checking for nawk... no
+checking for awk... awk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking how to create a pax tar archive... gnutar
+checking for style of include used by make... GNU
+checking for armv7-gcc... no
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking whether gcc understands -c and -o together... yes
+checking dependency style of gcc... gcc3
+checking for gcc option to accept ISO C99... none needed
+checking for gcc option to accept ISO Standard C... (cached) none needed
+checking how to run the C preprocessor... gcc -E
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking minix/config.h usability... no
+checking minix/config.h presence... no
+checking for minix/config.h... no
+checking whether it is safe to define __EXTENSIONS__... yes
+checking for special C compiler options needed for large files... no
+checking for _FILE_OFFSET_BITS value needed for large files... no
+checking whether make supports nested variables... (cached) yes
+checking build system type... x86_64-apple-darwin16.6.0
+checking host system type... armv7-unknown-none
+checking how to print strings... printf
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by gcc... /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+checking if the linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) is GNU ld... no
+checking for BSD- or MS-compatible name lister (nm)... no
+checking for armv7-dumpbin... no
+checking for armv7-link... no
+checking for dumpbin... no
+checking for link... link -dump
+checking the name lister (nm) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 196608
+checking how to convert x86_64-apple-darwin16.6.0 file names to armv7-unknown-none format... func_convert_file_noop
+checking how to convert x86_64-apple-darwin16.6.0 file names to toolchain format... func_convert_file_noop
+checking for /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld option to reload object files... -r
+checking for armv7-objdump... no
+checking for objdump... objdump
+checking how to recognize dependent libraries... unknown
+checking for armv7-dlltool... no
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for armv7-ar... no
+checking for ar... ar
+checking for archiver @FILE support... no
+checking for armv7-strip... strip
+checking for armv7-ranlib... no
+checking for ranlib... ranlib
+checking command to parse nm output from gcc object... ok
+checking for sysroot... no
+checking for a working dd... /bin/dd
+checking how to truncate binary pipes... /bin/dd bs=4096 count=1
+checking for armv7-mt... no
+checking for mt... no
+checking if : is a manifest tool... no
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if gcc supports -fno-rtti -fno-exceptions... yes
+checking for gcc option to produce PIC... -fPIC -DPIC
+checking if gcc PIC flag -fPIC -DPIC works... yes
+checking if gcc static flag -static works... no
+checking if gcc supports -c -o file.o... yes
+checking if gcc supports -c -o file.o... (cached) yes
+checking whether the gcc linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) supports shared libraries... no
+checking dynamic linker characteristics... no
+checking how to hardcode library paths into programs... unsupported
+checking whether stripping libraries is possible... no
+checking if libtool supports shared libraries... no
+checking whether to build shared libraries... no
+checking whether to build static libraries... yes
+checking arpa/inet.h usability... yes
+checking arpa/inet.h presence... yes
+checking for arpa/inet.h... yes
+checking byteswap.h usability... no
+checking byteswap.h presence... no
+checking for byteswap.h... no
+checking errno.h usability... yes
+checking errno.h presence... yes
+checking for errno.h... yes
+checking fcntl.h usability... yes
+checking fcntl.h presence... yes
+checking for fcntl.h... yes
+checking limits.h usability... yes
+checking limits.h presence... yes
+checking for limits.h... yes
+checking linux/serial.h usability... no
+checking linux/serial.h presence... no
+checking for linux/serial.h... no
+checking netdb.h usability... yes
+checking netdb.h presence... yes
+checking for netdb.h... yes
+checking netinet/in.h usability... yes
+checking netinet/in.h presence... yes
+checking for netinet/in.h... yes
+checking netinet/tcp.h usability... yes
+checking netinet/tcp.h presence... yes
+checking for netinet/tcp.h... yes
+checking sys/ioctl.h usability... yes
+checking sys/ioctl.h presence... yes
+checking for sys/ioctl.h... yes
+checking sys/params.h usability... no
+checking sys/params.h presence... no
+checking for sys/params.h... no
+checking sys/socket.h usability... yes
+checking sys/socket.h presence... yes
+checking for sys/socket.h... yes
+checking sys/time.h usability... yes
+checking sys/time.h presence... yes
+checking for sys/time.h... yes
+checking for sys/types.h... (cached) yes
+checking termios.h usability... yes
+checking termios.h presence... yes
+checking for termios.h... yes
+checking time.h usability... yes
+checking time.h presence... yes
+checking for time.h... yes
+checking for unistd.h... (cached) yes
+checking for asciidoc... no
+checking for xmlto... no
+checking whether to build documentation... no
+configure: WARNING: The tools to build the documentation aren't installed
+checking whether __CYGWIN__ is declared... no
+checking for pid_t... yes
+checking vfork.h usability... no
+checking vfork.h presence... no
+checking for vfork.h... no
+checking for fork... yes
+checking for vfork... yes
+checking for working fork... yes
+checking for working vfork... (cached) yes
+checking for stdlib.h... (cached) yes
+checking for GNU libc compatible malloc... yes
+checking for accept4... no
+checking for getaddrinfo... yes
+checking for gettimeofday... yes
+checking for inet_ntoa... yes
+checking for memset... yes
+checking for select... yes
+checking for socket... yes
+checking for strerror... yes
+checking for strlcpy... yes
+checking for inline... inline
+checking for armv7-g++... no
+checking for armv7-c++... no
+checking for armv7-gpp... no
+checking for armv7-aCC... no
+checking for armv7-CC... no
+checking for armv7-cxx... no
+checking for armv7-cc++... no
+checking for armv7-cl.exe... no
+checking for armv7-FCC... no
+checking for armv7-KCC... no
+checking for armv7-RCC... no
+checking for armv7-xlC_r... no
+checking for armv7-xlC... no
+checking for g++... g++
+checking whether we are using the GNU C++ compiler... yes
+checking whether g++ accepts -g... yes
+checking dependency style of g++... gcc3
+checking how to run the C++ preprocessor... g++ -E
+checking for ld used by g++... /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+checking if the linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) is GNU ld... no
+checking whether the g++ linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) supports shared libraries... no
+checking for g++ option to produce PIC... -fPIC -DPIC
+checking if g++ PIC flag -fPIC -DPIC works... yes
+checking if g++ static flag -static works... no
+checking if g++ supports -c -o file.o... yes
+checking if g++ supports -c -o file.o... (cached) yes
+checking whether the g++ linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) supports shared libraries... no
+checking dynamic linker characteristics... no
+checking how to hardcode library paths into programs... unsupported
+checking for int64_t... yes
+checking for size_t... yes
+checking for ssize_t... yes
+checking for uint16_t... yes
+checking for uint32_t... yes
+checking for uint8_t... yes
+checking winsock2.h usability... no
+checking winsock2.h presence... no
+checking for winsock2.h... no
+checking whether TIOCSRS485 is declared... no
+checking whether TIOCM_RTS is declared... yes
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating src/Makefile
+config.status: creating src/modbus-version.h
+config.status: creating src/win32/modbus.dll.manifest
+config.status: creating tests/Makefile
+config.status: creating doc/Makefile
+config.status: creating libmodbus.pc
+config.status: creating config.h
+config.status: creating tests/unit-test.h
+config.status: tests/unit-test.h is unchanged
+config.status: executing depfiles commands
+config.status: executing libtool commands
+
+        libmodbus 3.1.4
+        ===============
+
+        prefix:                 /Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks
+        sysconfdir:             ${prefix}/etc
+        libdir:                 ${exec_prefix}/lib
+        includedir:             ${prefix}/include
+
+        compiler:               gcc
+        cflags:                 -g -O2
+        ldflags:                
+
+        documentation:          no
+        tests:                  yes
+
+macserver1:Framworks admindyn$ make install
+Making install in src
+  CC       modbus.lo
+  CC       modbus-data.lo
+  CC       modbus-rtu.lo
+  CC       modbus-tcp.lo
+  CCLD     libmodbus.la
+ /Users/admindyn/Downloads/libmodbus-3.1.4/build-aux/install-sh -c -d '/Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/lib'
+ /bin/sh ../libtool   --mode=install /usr/bin/install -c   libmodbus.la '/Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/lib'
+libtool: install: /usr/bin/install -c .libs/libmodbus.lai /Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/lib/libmodbus.la
+libtool: install: /usr/bin/install -c .libs/libmodbus.a /Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/lib/libmodbus.a
+libtool: install: chmod 644 /Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/lib/libmodbus.a
+libtool: install: ranlib /Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/lib/libmodbus.a
+ /Users/admindyn/Downloads/libmodbus-3.1.4/build-aux/install-sh -c -d '/Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/include/modbus'
+ /usr/bin/install -c -m 644 /Users/admindyn/Downloads/libmodbus-3.1.4/src/modbus.h modbus-version.h /Users/admindyn/Downloads/libmodbus-3.1.4/src/modbus-rtu.h /Users/admindyn/Downloads/libmodbus-3.1.4/src/modbus-tcp.h '/Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/include/modbus'
+Making install in doc
+make[2]: Nothing to be done for `install-exec-am'.
+Making install in tests
+  CC       bandwidth-server-one.o
+  CCLD     bandwidth-server-one
+  CC       bandwidth-server-many-up.o
+  CCLD     bandwidth-server-many-up
+  CC       bandwidth-client.o
+  CCLD     bandwidth-client
+  CC       random-test-server.o
+  CCLD     random-test-server
+  CC       random-test-client.o
+  CCLD     random-test-client
+  CC       unit-test-server.o
+  CCLD     unit-test-server
+  CC       unit-test-client.o
+  CCLD     unit-test-client
+  CC       version.o
+  CCLD     version
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Nothing to be done for `install-exec-am'.
+ /Users/admindyn/Downloads/libmodbus-3.1.4/build-aux/install-sh -c -d '/Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/share/doc/libmodbus'
+ /usr/bin/install -c -m 644 /Users/admindyn/Downloads/libmodbus-3.1.4/MIGRATION /Users/admindyn/Downloads/libmodbus-3.1.4/README.md '/Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/share/doc/libmodbus'
+ /Users/admindyn/Downloads/libmodbus-3.1.4/build-aux/install-sh -c -d '/Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/lib/pkgconfig'
+ /usr/bin/install -c -m 644 libmodbus.pc '/Users/admindyn/Desktop/工作/集分宝项目工作目录/MODBUS/MODBUS/Framworks/lib/pkgconfig'
+macserver1:Framworks admindyn$ 

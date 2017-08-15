@@ -1,0 +1,706 @@
+modbus了解
+1.背景
+1.1.范围
+MODBUS 是 OSI 模型第 7 层上的应用层报文传输协议， 它在连接至不同类型总线或网络的设备之间提供客户机/服务器通信。
+
+自从 1979 年出现工业串行链路的事实标准以来， MODBUS 使成千上万的自动化设备能够通信。
+
+目前，继续增加对简单而雅观的 MODBUS 结构支持。互联网组织能够使 TCP/IP 栈上的保留系统端口 502 访问 MODBUS。
+
+MODBUS 是一个请求/应答协议，并且提供功能码规定的服务。MODBUS 功能码是 MODBUS请求/应答 PDU 的元素。
+
+ 
+
+1.2.缩略语
+ADU 应用数据单元
+
+HDLC 高级数据链路控制
+
+HMI 人机界面
+
+IETF 因特网工程工作组
+
+I/O 输入/输出设备
+
+IP 互连网协议
+
+MAC 介质访问控制
+
+MB MODBUS 协议
+
+MBAP  MODBUS应用协议
+
+PDU 协议数据单元
+
+PLC 可编程逻辑控制器
+
+TCP 传输控制协议
+
+1.3.MODBUS体系结构实例
+ 
+
+每种设备（PLC、HMI、控制面板、驱动程序、动作控制、输入/输出设备）都能使用 MODBUS协议来启动远程操作。
+
+在基于串行链路和以太 TCP/IP 网络的 MODBUS 上可以进行相同通信。
+
+一些网关允许在几种使用 MODBUS 协议的总线或网络之间进行通信。
+
+1.4.协议描述
+MODBUS 协议定义了一个与基础通信层无关的简单协议数据单元（PDU） 。特定总线或网络上的 MODBUS 协议映射能够在应用数据单元（ADU）上引入一些附加域。
+
+ 
+
+启动 MODBUS 事务处理的客户机创建 MODBUS 应用数据单元。 功能码向服务器指示将执行哪种操作。
+
+MODBUS 协议建立了客户机启动的请求格式。
+
+用一个字节编码 MODBUS 数据单元的功能码域。有效的码字范围是十进制 1-255（128-255 为异常响应保留） 。当从客户机向服务器设备发送报文时，功能码域通知服务器执行哪种操作。
+
+向一些功能码加入子功能码来定义多项操作。
+
+从客户机向服务器设备发送的报文数据域包括附加信息，服务器使用这个信息执行功能码定义的操作。这个域还包括离散项目和寄存器地址、处理的项目数量以及域中的实际数据字节数。
+
+在某种请求中，数据域可以是不存在的（0 长度） ，在此情况下服务器不需要任何附加信息。功能码仅说明操作。
+
+如果在一个正确接收的 MODBUS ADU 中，不出现与请求 MODBUS 功能有关的差错，那么服务器至客户机的响应数据域包括请求数据。如果出现与请求 MODBUS 功能有关的差错，那么域包括一个异常码，服务器应用能够使用这个域确定下一个执行的操作。
+
+例如， 客户机能够读一组离散量输出或输入的开/关状态， 或者客户机能够读/写一组寄存器的数据内容。
+
+当服务器对客户机响应时，它使用功能码域来指示正常（无差错）响应或者出现某种差错（称为异常响应） 。对于一个正常响应来说，服务器仅对原始功能码响应。
+
+ 
+
+对于异常响应，服务器返回一个与原始功能码等同的码，设置该原始功能码的最高有效位为逻辑 1。
+
+ 
+
+  注释：需要管理超时，以便明确地等待可能不会出现的应答。
+
+串行链路上第一个MODBUS执行的长度约束限制了MODBUS PDU大小 （最大RS485ADU=256字节） 。
+
+因此， 对串行链路通信来说，MODBUS PDU=256-服务器地址（1 字节）-CRC（2 字节）＝253字节。
+
+从而：
+
+RS232 / RS485 ADU = 253 字节+服务器地址(1 byte) + CRC (2 字节) = 256  字节。
+
+TCP MODBUS ADU = 249 字节+ MBAP (7 字节) = 256  字节。
+
+MODBUS 协议定义了三种 PDU。它们是：
+
+MODBUS 请求 ，modbus_request
+
+MODBUS 响应 ，modbus_reply
+
+MODBUS 异常响应 ，modbus_reply_exception
+
+1.5.数据模型
+MODBUS 以一系列具有不同特征表格上的数据模型为基础。四个基本表格为：
+
+基本表格
+
+对象类型
+
+访问类型  
+
+内容
+
+离散量输入  
+
+单个比特  
+
+只读  
+
+I/O 系统提供这种类型数据
+
+线圈
+
+单个比特  
+
+读写
+
+通过应用程序改变这种类型数据
+
+输入寄存器
+
+16-比特字  
+
+只读  
+
+I/O 系统提供这种类型数据
+
+保持寄存器
+
+16-比特字  
+
+读写
+
+通过应用程序改变这种类型数据
+
+ 
+
+1.6.设计背景
+因为公司发展需要需要研发一个基于ARM9芯片的中央控制器（如下：设计架构图和硬件设计图），可以用来控制前端设备，并与云平台和用户进行交互。其中一个重要的功能就是要求设备设备能采集前端设备（表示在控制器之前的所有设计，就是前段设备）的信息，同时也可以对前端设备采集来的信息进行反馈控制。经过市场研究和调查，现在采集设备485通信用的比较多，而且大多设备都支持MODBUS通信协议，因此开发一个Modbus协议库，越来越有必要。
+
+设计架构图：
+
+ 
+
+硬件结构设计：
+
+ 
+
+在我们进行软件设计的同时，也同步进行硬件的设计，但是一些前段设备，我们都是从外面的产家进行购买的，包括气体传感器（如CO、CH4等）、电量采集、流量采集（水流、气体等）的采集，控制一类的主要有灯光控制、门禁、水泵等。同时，如果有相关的同行，或者产家也可以和我联系，我们正在进行采购测试的，如果合适的话，我们也可以建立长期的合作伙伴。
+
+2.功能码
+2.1.功能码分类
+有三类 MODBUS 功能码。它们是：
+
+公共功能码
+
+ 是较好地被定义的功能码，
+保证是唯一的，
+ MODBUS 组织可改变的，
+公开证明的，
+具有可用的一致性测试，
+MB IETF RFC 中证明的，
+包含已被定义的公共指配功能码和未来使用的未指配保留供功能码。
+用户定义功能码
+
+有两个用户定义功能码的定义范围，即 65 至 72 和十进制 100 至 110。
+用户没有 MODBUS 组织的任何批准就可以选择和实现一个功能码
+不能保证被选功能码的使用是唯一的。
+如果用户要重新设置功能作为一个公共功能码，那么用户必须启动 RFC，以便将改变引入
+ 公共分类中，并且指配一个新的公共功能码。
+保留功能码
+
+一些公司对传统产品通常使用的功能码，并且对公共使用是无效的功能码。
+ 
+
+ 
+
+ 
+
+2.2.公共功能码定义
+ 
+
+ 
+
+ 
+
+3.MODBUS通信模块设计
+3.1.模块概述
+Modbus通信模块是多功能控制器中必不可少的一个功能，有了它才能使外部设备（如除湿装置、荧光测温、温湿度检测、六氟化硫检测）与COM控制器的进行数据传输、远程控制。因此Modbus通信协议的地位自然不言而喻。
+
+3.2.设计目标
+实现对外设数据的读取和控制功能。
+
+3.3.设计原则
+尽量做到模块的分层设计。
+
+3.4.运行环境
+操作系统：Linux
+
+3.5.模块结构设计
+ 
+
+ 
+
+ 
+
+4.模块功能设计
+ 
+
+4.1.发送组包功能设计
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+4.2.接收解包功能设计
+ 
+
+ 
+
+4.3.串口管理模块设计
+ 
+
+ 
+
+ 
+
+4.3.1.计算机串口的引脚说明
+
+序号
+
+信号名称
+
+符号
+
+流向
+
+功能
+
+2
+
+发送数据
+
+TXD
+
+DTE→DCE
+
+DTE发送串行数据
+
+3
+
+接收数据
+
+RXD
+
+DTE←DCE
+
+DTE 接收串行数据
+
+4
+
+请求发送
+
+RTS
+
+DTE→DCE
+
+DTE 请求 DCE 将线路切换到发送方式
+
+5
+
+允许发送
+
+CTS
+
+DTE←DCE
+
+DCE 告诉 DTE 线路已接通可以发送数据
+
+6
+
+数据设备准备好
+
+DSR
+
+DTE←DCE
+
+DCE 准备好
+
+7
+
+信号地
+
+　
+
+　
+
+　　　信号公共地
+
+8
+
+载波检测
+
+DCD
+
+DTE←DCE
+
+表示 DCE 接收到远程载波
+
+20
+
+数据终端准备好
+
+DTR
+
+DTE→DCE
+
+DTE 准备好
+
+22
+
+振铃指示
+
+RI
+
+DTE←DCE
+
+表示 DCE 与线路接通，出现振铃
+
+ 4.3.2.串口操作的头文件定义
+
+#include <stdio.h>      /*标准输入输出定义*/
+
+#include <stdlib.h>     /*标准函数库定义*/
+
+#include <unistd.h>     /*Unix 标准函数定义*/
+
+#include <sys/types.h>  /*数据类型，比如一些XXX_t的那种*/
+
+#include<sys/stat.h>   /*定义了一些返回值的结构，没看明白*/
+
+#include<fcntl.h>      /*文件控制定义*/
+
+#include<termios.h>    /*PPSIX 终端控制定义*/
+
+#include<errno.h>      /*错误号定义*/
+
+4.3.3、串口设置
+
+（1）、串口文件位于/dev目录下，而且以tty开飞的，
+
+
+其中：串口一 为 /dev/ttyS0，串口二 为 /dev/ttyS1，等等。其中/dev/ttyUSB* 表示USB转串口。如：
+
+（2）、串口的打开和设置
+
+打开串口是通过使用标准的文件打开函数操作：
+
+复制代码
+int fd;
+
+/*以读写方式打开串口*/
+
+fd = open( "/dev/ttyS0", O_RDWR);
+
+if (-1 == fd){
+
+/* 不能打开串口一*/
+
+MFS_LOG_TRACE_ERR(" 提示错误！");
+
+}
+复制代码
+ 
+
+(3)、设置串口
+
+最基本的设置串口包括波特率设置，效验位和停止位设置，串口的设置主要是设置 struct termios 结构体的各成员值。
+
+ 
+
+复制代码
+struct termio
+
+{   
+
+unsigned short  c_iflag; /* 输入模式标志 */
+
+    unsigned short  c_oflag;     /* 输出模式标志 */
+
+    unsigned short  c_cflag;     /* 控制模式标志*/  
+
+    unsigned short  c_lflag;     /* local mode flags */  
+
+    unsigned char    c_line;           /* line discipline */
+
+ 
+
+    unsigned char    c_cc[NCC];    /* control characters */
+
+};
+复制代码
+ 
+
+（4）、串口的读写
+
+如果不是开发终端之类的，只是串口传输数据，而不需要串口来处理，那么使用原始模式(Raw Mode)方式来通讯。
+
+发送数据：
+
+复制代码
+char  buffer[1024];
+
+int    Length;
+
+int    nByte;
+
+nByte = write(fd, buffer ,Length)
+复制代码
+ 
+
+ 
+
+读取串口数据：
+
+使用文件操作read函数读取，如果设置为原始模式(Raw Mode)传输数据，那么read函数返回的字符数是实际串口收到的字符数。
+
+可以使用操作文件的函数来实现异步读取，如fcntl，或者select等来操作。
+
+复制代码
+char  buff[1024];
+
+int    Len;
+
+int  readByte = read(fd,buff,Len);
+
+关闭串口：
+
+关闭串口就是关闭文件。
+
+close(fd);
+复制代码
+ 
+
+ 
+
+ 
+
+4.4.接口设计
+Modbus通信协议设计：
+
+ 
+
+复制代码
+/************************外部接口************************************/
+
+/*发送组包*/
+
+/*参数说明：
+
+Modbus_t *ctx ： 操作设备的简要信息
+
+modbus_msg *msg：modbus消息结构体，指需要进行打包或解包的信息
+
+*/
+
+ int  modbus_pack(modbus_t  *ctx,msg_src *src ,modbus_msg  *msg);//pack *msg);
+
+ 
+
+/*参数说明：
+
+Modbus_t *ctx ： 操作设备的简要信息
+
+unsigned int *src：数据的目标地址
+
+modbus_msg *msg：modbus消息结构体，指需要进行打包或解包的信息
+
+*/
+
+ Int modbus_unpack(modbus_t  *ctx,msg_src* req,msg_src* rsp,resolve_src* dest);
+
+ 
+
+/*modbus上下文信息结构体*/
+
+typedef struct modbus_t{
+
+modbus_type_t  type;    //modbus的通信类型，rtu、ascii、tcp等
+
+int slave;    //客户端地址
+
+int *s;    //表示实例化之后的串口编号
+
+unsigned int devicecode;    //设备编码
+
+unsigned int functiontype;    //功能类别的编码
+
+struct timeval timeout;    //延时
+
+char *devicename;    //设备名称
+
+modbus_error_recovery_mode error_recovery;    //错误的恢复模式
+
+int debug;
+
+ 
+
+};
+复制代码
+ 
+
+ 
+
+说明：设备类别编码优先级大于功能类别编码，解决部分设备可能由于更换产家等原因导致功能相同，但是数据协议不同的情况
+
+ 
+
+复制代码
+/*Modbus消息结构体*/
+
+typedef struct modbus_msg{
+
+ uint8_t   function_code;    //modbus的功能码
+
+int start_addr;    //数据的起始地址
+
+int data_length;    //数据长度（数据个数）
+
+int write_data;    //写入数据的值
+
+uint8_t  *s_dest;    //ｓｍａｌｌ　ｄｅｓｔ
+
+uint16_t *dest;    //线圈、离散量数据
+
+uint16_t *regisdate;    //寄存器操作的数据
+
+}
+
+ 
+复制代码
+ 
+
+/*********************内部接口**************************************/
+
+ 
+
+ 
+
+ 
+
+ 
+
+复制代码
+//源消息结构体
+
+typedef struct  _modbus_src_t
+
+{
+
+ uint8_t  *msg_src;    //数组的地址
+
+ int  msg_len;    //数组的长度
+
+}msg_src;
+
+ 
+
+typedef enum
+
+{
+
+    MODBUS_ERROR_RECOVERY_NONE          = 0,
+
+    MODBUS_ERROR_RECOVERY_LINK          = (1<<1),
+
+    MODBUS_ERROR_RECOVERY_PROTOCOL      = (1<<2)
+
+} modbus_error_recovery_mode;
+复制代码
+ 
+
+ 
+
+ 
+
+串口管理模块设计：
+
+ 
+
+复制代码
+/*************************接口的设计*************************/
+
+typedef struct  _dts
+
+{
+
+serial_mode  serial_mode;    //串口的通信类型，RS485、ＲＳ２３２等
+
+int s;    //表示实例化之后的串口编号
+
+unsigned int devicecode;    //设备编码
+
+struct timeval timeout;    //延时
+
+char *devicename;    //设备名称
+
+int error_recovery;    //错误的恢复模式
+
+int debug;
+
+void *backend_data;
+
+}dts_t,dts;
+
+（命名方式：）device to seial
+
+dts* serial_set_new(const char *device, int baud, char parity,  int data_bit, int stop_bit,struct timeval timeout);
+
+ 
+
+//串口的结构设计
+
+typedef struct _serial {
+
+    /* Device: "/dev/ttyS0", "/dev/ttyUSB0" or "/dev/tty.USA19*" on Mac OS X. */
+
+    char *device;
+
+    /* Bauds: 9600, 19200, 57600, 115200, etc */
+
+    int baud;
+
+    /* Data bit */
+
+    uint8_t data_bit;
+
+    /* Stop bit */
+
+    uint8_t stop_bit;
+
+    /* Parity: 'N', 'O', 'E' */
+
+    char parity;
+
+#if defined(_WIN32)
+
+    struct win32_ser w_ser;
+
+    DCB old_dcb;
+
+#else
+
+    /* Save old termios settings */
+
+    struct termios old_tios;
+
+#endif
+
+#if HAVE_DECL_TIOCSRS485
+
+    int serial_mode;
+
+#endif
+
+#if HAVE_DECL_TIOCM_RTS
+
+    int rts;
+
+    int rts_delay;
+
+    int onebyte_time;
+
+    void (*set_rts) (dts *ctx, int on);
+
+#endif
+
+    /* To handle many slaves on the same link */
+
+    int confirmation_to_ignore;
+
+} serial_t;
+
+ 
+
+//串口的工作模式
+
+typedef enum _serial_mode
+
+{
+
+SERIAL_RS232=0,
+
+SERIAL_RS485
+
+}serial_mode;
+复制代码
